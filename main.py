@@ -42,7 +42,7 @@ def create_id_card(name, email, faculty):
     data = urllib.parse.quote(raw, safe=':/?=&')
 
 
-    print(data)
+    # print(data)
 
     # Convert to JSON for QR code
     qr_data = json.dumps(data)
@@ -158,24 +158,69 @@ def main():
         
         print(f"Processing {len(df)} records from {excel_file}...")
         
+        # Initialize lists to track success and failures
+        failed_records = []
+        successful_count = 0
+        
         # Process each row in the CSV file
         for index, row in df.iterrows():
-            # Get data, checking multiple possible column name formats
-            name = row.get('Full Name', row.get('name', ''))
-            email = row.get('Email Address', row.get('email', ''))
-            faculty= str(row.get('Faculty', row.get('faculty', '')))
-            # address = row.get('Address', row.get('address', ''))
-            # 
-            # Only create card if there's a name
-            if name and email:
-                create_id_card(name, email,faculty)
+            try:
+                # Get data, checking multiple possible column name formats
+                name = row.get('Full Name', row.get('name', ''))
+                email = row.get('Email Address', row.get('email', ''))
+                faculty = str(row.get('Faculty', row.get('faculty', '')))
+                
+                # Only create card if there's a name and email
+                if name and email:
+                    create_id_card(name, email, faculty)
+                    successful_count += 1
+                else:
+                    # Record missing data
+                    failed_records.append({
+                        'index': index + 1,
+                        'name': name,
+                        'email': email,
+                        'faculty': faculty,
+                        'reason': 'Missing name or email'
+                    })
+                
+                # Progress indicator for large datasets
+                if index > 0 and index % 10 == 0:
+                    print(f"Processed {index} records...")
+                
+            except Exception as e:
+                # Record failed creation
+                failed_records.append({
+                    'index': index + 1,
+                    'name': row.get('Full Name', row.get('name', 'Unknown')),
+                    'email': row.get('Email Address', row.get('email', 'Unknown')),
+                    'faculty': str(row.get('Faculty', row.get('faculty', 'Unknown'))),
+                    'reason': str(e)
+                })
+                print(f"Failed to create ID card for row {index + 1}: {e}")
             
-            # Progress indicator for large datasets
-            if index > 0 and index % 10 == 0:
-                print(f"Processed {index} records...")
-            break
+            # Remove the break statement to process all records
+            # break
         
-        print("All ID cards created successfully!")
+        # Write failed records to file if any
+        if failed_records:
+            with open("faileddata.txt", "w") as f:
+                f.write("FAILED ID CARD CREATION RECORDS\n")
+                f.write("=" * 50 + "\n\n")
+                for record in failed_records:
+                    f.write(f"Row: {record['index']}\n")
+                    f.write(f"Name: {record['name']}\n")
+                    f.write(f"Email: {record['email']}\n")
+                    f.write(f"Faculty: {record['faculty']}\n")
+                    f.write(f"Reason: {record['reason']}\n")
+                    f.write("-" * 30 + "\n")
+            
+            print(f"\n{len(failed_records)} records failed. Details saved to 'faileddata.txt'")
+        
+        print(f"\nSummary:")
+        print(f"Successfully created: {successful_count} ID cards")
+        print(f"Failed: {len(failed_records)} records")
+        print("All ID cards processing completed!")
         
     except FileNotFoundError:
         print(f"Error: CSV file '{excel_file}' not found.")
