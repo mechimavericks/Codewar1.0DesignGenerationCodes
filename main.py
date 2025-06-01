@@ -153,7 +153,7 @@ def create_id_card(name, email, faculty):
 def main():
     try:
         # Read the CSV file
-        excel_file = "list.csv"  # Adjust filename if needed
+        excel_file = "ParticipantList.csv"  # Adjust filename if needed
         df = pd.read_csv(excel_file)
         
         print(f"Processing {len(df)} records from {excel_file}...")
