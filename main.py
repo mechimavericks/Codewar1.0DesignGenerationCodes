@@ -35,9 +35,8 @@ def create_transparent_qr(data):
 
 def create_id_card(name, email, faculty):
     # Combine data for QR code
-    # let's find first name, last name and middle name if exists
     # Split name into parts
-    raw = f"https://docs.google.com/forms/d/e/1FAIpQLScbD2mkihjvRASRpPn4qnH9sWALrsjcfF1WCC2TRs4zmn3x6g/viewform?usp=pp_url&entry.640571046={name}&entry.1071274387={email}&entry.539886154={faculty}"
+    raw = "<URL GOES HERE FOR THE QR CODE>"
     # url encoder 
     data = urllib.parse.quote(raw, safe=':/?=&')
 
