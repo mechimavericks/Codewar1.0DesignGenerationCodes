@@ -1,0 +1,5 @@
+/venv
+/participants_certificates
+*.pdf
+*.png
+*.csv
